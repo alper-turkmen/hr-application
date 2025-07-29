@@ -75,22 +75,22 @@ class HRUserCreateSerializer(serializers.ModelSerializer):
         return user
 
 class LoginSerializer(serializers.Serializer):
-    username = serializers.CharField()
+    email = serializers.CharField()
     password = serializers.CharField()
     
     def validate(self, attrs):
-        username = attrs.get('username')
+        email = attrs.get('email')
         password = attrs.get('password')
-        
-        if username and password:
-            user = authenticate(username=username, password=password)
+
+        if email and password:
+            user = authenticate(email=email, password=password)
             if not user:
-                raise serializers.ValidationError('Kullanıcı adı veya şifre hatalı!')
+                raise serializers.ValidationError('Email veya şifre hatalı!')
             if not user.is_active:
                 raise serializers.ValidationError('Hesap deaktif!')
             attrs['user'] = user
         else:
-            raise serializers.ValidationError('Kullanıcı adı ve şifre gerekli!')
+            raise serializers.ValidationError('Email ve şifre gerekli!')
         
         return attrs
 

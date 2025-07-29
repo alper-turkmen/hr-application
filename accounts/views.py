@@ -100,54 +100,54 @@ class HRUserViewSet(viewsets.ModelViewSet):
     
     @extend_schema(
         operation_id="list_hr_users",
-        summary="List HR Users",
-        description="Lists all HR users",
-        tags=['HR Users']
+        summary="List Users",
+        description="Lists all Users",
+        tags=['Users']
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
     
     @extend_schema(
         operation_id="create_hr_user",
-        summary="Create HR User",
-        description="Creates a new HR user",
-        tags=['HR Users']
+        summary="Create User",
+        description="Creates a new User",
+        tags=['Users']
     )
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
     
     @extend_schema(
         operation_id="retrieve_hr_user",
-        summary="Retrieve HR User",
-        description="Get the details of an HR user",
-        tags=['HR Users']
+        summary="Retrieve User",
+        description="Get the details of an User",
+        tags=['Users']
     )
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
     
     @extend_schema(
         operation_id="update_hr_user",
-        summary="Update HR User",
-        description="Updates the information of an HR user",
-        tags=['HR Users']
+        summary="Update User",
+        description="Updates the information of an User",
+        tags=['Users']
     )
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
     
     @extend_schema(
         operation_id="partial_update_hr_user",
-        summary="Partially Update HR User",
-        description="Partially updates the information of an HR user",
-        tags=['HR Users']
+        summary="Partially Update User",
+        description="Partially updates the information of an User",
+        tags=['Users']
     )
     def partial_update(self, request, *args, **kwargs):
         return super().partial_update(request, *args, **kwargs)
     
     @extend_schema(
         operation_id="delete_hr_user",
-        summary="Delete HR User",
-        description="Deletes an HR user",
-        tags=['HR Users']
+        summary="Delete User",
+        description="Deletes an User",
+        tags=['Users']
     )
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
@@ -173,7 +173,7 @@ class HRUserViewSet(viewsets.ModelViewSet):
         summary="My Profile",
         description="Get the profile information of the logged in user",
         responses=HRUserProfileSerializer,
-        tags=['HR Users']
+        tags=['Users']
     )
     @action(detail=False, methods=['get'])
     def me(self, request):

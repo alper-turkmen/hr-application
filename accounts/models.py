@@ -5,6 +5,10 @@ from django.contrib.auth.models import AbstractUser
 from companies.models import HRCompany, CustomerCompany
 
 class HRUser(AbstractUser):
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']
+    email = models.EmailField(unique=True)
+
     hr_company = models.ForeignKey(
         HRCompany, 
         on_delete=models.CASCADE,
