@@ -1,14 +1,16 @@
+# Create your models here.
+
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from companies.models import HRCompany, CustomerCompany
 
-# Create your models here.
-
 class HRUser(AbstractUser):
     hr_company = models.ForeignKey(
         HRCompany, 
-        on_delete=models.CASCADE, 
-        related_name='hr_users'
+        on_delete=models.CASCADE,
+        related_name='hr_users',
+        null=True,
+        blank=True 
     )
     
     authorized_customer_companies = models.ManyToManyField(
@@ -21,15 +23,21 @@ class HRUser(AbstractUser):
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
+    
     def __str__(self):
-        return f"{self.username} - {self.hr_company.name}"
-
+        if self.hr_company:
+            return f"{self.username} - {self.hr_company.name}"
+        return f"{self.username} - Admin"
+    
     def get_authorized_customer_companies(self):
         return self.authorized_customer_companies.filter(is_active=True)
-
+    
     def has_customer_company_permission(self, customer_company):
         return self.authorized_customer_companies.filter(
             id=customer_company.id, 
             is_active=True
         ).exists()
+    
+    @property
+    def is_hr_staff(self):
+        return bool(self.hr_company and not self.is_superuser)
