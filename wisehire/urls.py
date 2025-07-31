@@ -28,6 +28,9 @@ urlpatterns = [
     
     path('api/auth/', include('accounts.urls')),
     path('api/companies/', include('companies.urls')),
+    path('api/jobs/', include('jobs.urls')),
+    path('api/candidates/', include('candidates.urls')),
+    path('api/flows/', include('flows.urls')),
     #
     path('rosetta/', include('rosetta.urls')),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
