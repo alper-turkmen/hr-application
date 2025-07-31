@@ -1,9 +1,10 @@
+{% load i18n %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ LANGUAGE_CODE }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WiseHire - Login</title>
+    <title>{% trans "WiseHire - Login" %}</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -99,13 +100,40 @@
             margin-bottom: 20px;
             border: 1px solid #c3e6cb;
         }
+        .language-switcher {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        
+        .language-switcher select {
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            background-color: white;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
+    <div class="language-switcher">
+        <form action="{% url 'set_language' %}" method="post">
+            {% csrf_token %}
+            <select name="language" onchange="this.form.submit()">
+                {% get_current_language as LANGUAGE_CODE %}
+                {% get_available_languages as LANGUAGES %}
+                {% for lang_code, lang_name in LANGUAGES %}
+                    <option value="{{ lang_code }}" {% if lang_code == LANGUAGE_CODE %}selected{% endif %}>
+                        {{ lang_name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
     <div class="login-box">
         <div class="login-header">
             <h1>WiseHire</h1>
-            <p>Sign in to your account</p>
+            <p>{% trans "Sign in to your account" %}</p>
         </div>
         
         {% if messages %}
@@ -119,16 +147,16 @@
         <form method="post">
             {% csrf_token %}
             <div class="form-group">
-                <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" required>
+                <label for="email">{% trans "Email Address" %}</label>
+                <input type="email" id="email" name="email" required placeholder="{% trans 'Enter your email' %}">
             </div>
             
             <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
+                <label for="password">{% trans "Password" %}</label>
+                <input type="password" id="password" name="password" required placeholder="{% trans 'Enter your password' %}">
             </div>
             
-            <button type="submit" class="login-button">Sign In</button>
+            <button type="submit" class="login-button">{% trans "Sign In" %}</button>
         </form>
     </div>
 </body>

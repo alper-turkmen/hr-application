@@ -21,6 +21,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 from django.shortcuts import redirect
+from django.conf.urls.i18n import i18n_patterns
 
 
 def redirect_to_login(request):
@@ -28,6 +29,8 @@ def redirect_to_login(request):
 
 
 urlpatterns = [
+    path('i18n/', include('django.conf.urls.i18n')),
+    
     # Admin
     path('admin/', admin.site.urls),
     

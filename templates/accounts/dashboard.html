@@ -1,9 +1,10 @@
+{% load i18n %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ LANGUAGE_CODE }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WiseHire - Dashboard</title>
+    <title>{% trans "WiseHire - Dashboard" %}</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -128,68 +129,99 @@
             color: red;
             font-weight: bold;
         }
+        
+        .language-switcher {
+            float: right;
+            margin-right: 10px;
+            margin-top: 5px;
+        }
+        
+        .language-switcher select {
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            background-color: white;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
     <div class="header">
         <h1>WiseHire</h1>
-        <a href="{% url 'logout' %}" class="logout">Logout</a>
+        <div class="language-switcher">
+            <form action="{% url 'set_language' %}" method="post">
+                {% csrf_token %}
+                <select name="language" onchange="this.form.submit()">
+                    {% get_current_language as LANGUAGE_CODE %}
+                    {% get_available_languages as LANGUAGES %}
+                    {% for lang_code, lang_name in LANGUAGES %}
+                        <option value="{{ lang_code }}" {% if lang_code == LANGUAGE_CODE %}selected{% endif %}>
+                            {{ lang_name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+        <a href="{% url 'logout' %}" class="logout">{% trans "Logout" %}</a>
         <div style="clear: both;"></div>
     </div>
     
     <div class="container">
         <div class="welcome">
-            <h2>Welcome, {{ user.first_name|default:user.username }}!</h2>
+            <h2>{% blocktrans with name=user.first_name|default:user.username %}Welcome, {{ name }}!{% endblocktrans %}</h2>
         </div>
         
         <div class="user-info">
             <div class="info-box">
-                <h3>Username</h3>
+                <h3>{% trans "Username" %}</h3>
                 <p>{{ user.username }}</p>
             </div>
             
             <div class="info-box">
-                <h3>Email</h3>
+                <h3>{% trans "Email" %}</h3>
                 <p>{{ user.email }}</p>
             </div>
             
             <div class="info-box">
-                <h3>Full Name</h3>
+                <h3>{% trans "Full Name" %}</h3>
                 <p>
                     {% if user.first_name or user.last_name %}
                         {{ user.first_name }} {{ user.last_name }}
                     {% else %}
+                        {% trans "Not provided" %}
                     {% endif %}
                 </p>
             </div>
             
             <div class="info-box">
-                <h3>Company</h3>
+                <h3>{% trans "Company" %}</h3>
                 <p>
                     {% if user.hr_company %}
                       {{ user.hr_company.name }}
                     {% else %}
+                        {% trans "Not assigned" %}
                     {% endif %}
                 </p>
             </div>
             
             <div class="info-box">
-                <h3>Phone</h3>
+                <h3>{% trans "Phone" %}</h3>
                 <p>
                     {% if user.phone %}
                         {{ user.phone }}
                     {% else %}
+                        {% trans "Not provided" %}
                     {% endif %}
                 </p>
             </div>
             
             <div class="info-box">
-                <h3>Status</h3>
+                <h3>{% trans "Status" %}</h3>
                 <p>
                     {% if user.is_active %}
-                        Active
+                        {% trans "Active" %}
                     {% else %}
-                        Inactive
+                        {% trans "Inactive" %}
                     {% endif %}
                 </p>
             </div>
@@ -197,43 +229,43 @@
         
         <div class="stats">
             <div class="stat-box">
-                <h3>Account Type</h3>
+                <h3>{% trans "Account Type" %}</h3>
                 <p>
                     {% if user.is_superuser %}
-                        Super Admin
+                        {% trans "Super Admin" %}
                     {% elif user.is_staff %}
-                        Staff
+                        {% trans "Staff" %}
                     {% elif user.is_hr_staff %}
-                        HR Staff
+                        {% trans "HR Staff" %}
                     {% else %}
-                        User
+                        {% trans "User" %}
                     {% endif %}
                 </p>
             </div>
             
             <div class="stat-box">
-                <h3>Company Code</h3>
+                <h3>{% trans "Company Code" %}</h3>
                 <p>
                     {% if user.hr_company %}
                         {{ user.hr_company.code }}
                     {% else %}
-                        N/A
+                        {% trans "N/A" %}
                     {% endif %}
                 </p>
             </div>
             
             <div class="stat-box">
-                <h3>Member Since</h3>
+                <h3>{% trans "Member Since" %}</h3>
                 <p>{{ user.date_joined|date:"M Y" }}</p>
             </div>
             
             <div class="stat-box">
-                <h3>Last Login</h3>
+                <h3>{% trans "Last Login" %}</h3>
                 <p>
                     {% if user.last_login %}
                         {{ user.last_login|date:"M d, Y" }}
                     {% else %}
-                        Never
+                        {% trans "Never" %}
                     {% endif %}
                 </p>
             </div>
