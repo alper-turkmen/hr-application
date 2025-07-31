@@ -5,7 +5,13 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.views.decorators.csrf import csrf_protect
+from django.utils.decorators import method_decorator
+from django.views import View
 from .models import HRUser
 from .serializers import (
     HRUserSerializer,
@@ -179,3 +185,43 @@ class HRUserViewSet(viewsets.ModelViewSet):
     def me(self, request):
         serializer = HRUserProfileSerializer(request.user)
         return Response(serializer.data)
+
+
+class LoginView(View):
+    def get(self, request):
+        if request.user.is_authenticated:
+            return redirect('dashboard')
+        return render(request, 'accounts/login.html')
+    
+    @method_decorator(csrf_protect)
+    def post(self, request):
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        
+        if not email or not password:
+            messages.error(request, 'Please provide both email and password.')
+            return render(request, 'accounts/login.html')
+        
+        user = authenticate(request, username=email, password=password)
+        
+        if user and user.is_active:
+            login(request, user)
+            messages.success(request, f'Welcome back, {user.username}!')
+            return redirect('dashboard')
+        else:
+            messages.error(request, 'Invalid email or password.')
+            return render(request, 'accounts/login.html')
+
+
+@method_decorator(login_required, name='dispatch')
+class DashboardView(View):
+    def get(self, request):
+        return render(request, 'accounts/dashboard.html', {
+            'user': request.user
+        })
+
+
+def logout_view(request):
+    logout(request)
+    messages.success(request, 'You have been successfully logged out.')
+    return redirect('login')

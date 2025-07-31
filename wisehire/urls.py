@@ -20,12 +20,24 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+from django.shortcuts import redirect
+
+
+def redirect_to_login(request):
+    return redirect('login')
 
 
 urlpatterns = [
     # Admin
     path('admin/', admin.site.urls),
     
+    # Root redirect to login
+    path('', redirect_to_login, name='home'),
+    
+    # Web authentication routes
+    path('auth/', include('accounts.urls')),
+    
+    # API routes
     path('api/auth/', include('accounts.urls')),
     path('api/companies/', include('companies.urls')),
     path('api/jobs/', include('jobs.urls')),
@@ -42,4 +54,5 @@ urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
 
