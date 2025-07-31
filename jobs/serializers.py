@@ -15,15 +15,16 @@ class JobPostingSerializer(serializers.ModelSerializer):
             'created_by', 'closing_date', 'status', 'is_active', 'created_at', 'updated_at',
             'hr_company_detail', 'customer_company_detail', 'created_by_detail'
         ]
-        read_only_fields = ['id', 'created_at', 'updated_at', 'created_by']
+        read_only_fields = ['id', 'created_at', 'updated_at']
 
 class JobPostingCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = JobPosting
         fields = [
-            'title', 'code', 'description', 'hr_company', 'customer_company',
-            'closing_date', 'status'
+            'title', 'code', 'description', 'customer_company',
+            'closing_date', 'status', 'created_by', 'hr_company'
         ]
+        read_only_fields = ['created_by', 'hr_company']
         
     def validate(self, data):
         request = self.context.get('request')

@@ -35,12 +35,13 @@ class ActivitySerializer(serializers.ModelSerializer):
             'hr_company', 'notes', 'created_at', 'updated_at',
             'activity_type_detail', 'status_detail', 'created_by_detail', 'hr_company_detail'
         ]
-        read_only_fields = ['id', 'created_at', 'updated_at', 'created_by', 'hr_company']
+        read_only_fields = ['id', 'created_at', 'updated_at']
 
 class ActivityCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Activity
-        fields = ['candidate_flow', 'activity_type', 'status', 'notes']
+        fields = ['candidate_flow', 'activity_type', 'status', 'notes', 'created_by', 'hr_company']
+        read_only_fields = ['created_by', 'hr_company']
     
     def validate(self, data):
         activity_type = data.get('activity_type')
@@ -67,12 +68,13 @@ class CandidateFlowSerializer(serializers.ModelSerializer):
             'job_posting_detail', 'candidate_detail', 'hr_company_detail',
             'created_by_detail', 'activities'
         ]
-        read_only_fields = ['id', 'created_at', 'updated_at', 'created_by', 'hr_company']
+        read_only_fields = ['id', 'created_at', 'updated_at']
 
 class CandidateFlowCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = CandidateFlow
-        fields = ['job_posting', 'candidate', 'flow_status', 'notes']
+        fields = ['job_posting', 'candidate', 'flow_status', 'notes', 'created_by', 'hr_company']
+        read_only_fields = ['created_by', 'hr_company']
     
     def validate(self, data):
         request = self.context.get('request')

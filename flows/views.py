@@ -49,29 +49,12 @@ class CandidateFlowViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         if user.is_superuser:
-            return CandidateFlow.objects.all()
-        
-        return CandidateFlow.objects.filter(
-            hr_company=user.hr_company,
-            job_posting__customer_company__in=user.get_authorized_customer_companies()
-        )
-    
-    def get_serializer_class(self):
-        if self.action == 'list':
-            return CandidateFlowListSerializer
-        elif self.action in ['create', 'update', 'partial_update']:
-            return CandidateFlowCreateSerializer
-        return CandidateFlowSerializer
-    
-    def perform_create(self, serializer):
-        serializer.save(
-            created_by=self.request.user,
-            hr_company=self.request.user.hr_company
-        )
-    
-    def get_queryset(self):
-        user = self.request.user
-        queryset = super().get_queryset()
+            queryset = CandidateFlow.objects.all()
+        else:
+            queryset = CandidateFlow.objects.filter(
+                hr_company=user.hr_company,
+                job_posting__customer_company__in=user.get_authorized_customer_companies()
+            )
         
         job_code = self.request.query_params.get('job_code', None)
         if job_code:
@@ -106,6 +89,19 @@ class CandidateFlowViewSet(viewsets.ModelViewSet):
             ).distinct()
         
         return queryset
+    
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return CandidateFlowListSerializer
+        elif self.action in ['create', 'update', 'partial_update']:
+            return CandidateFlowCreateSerializer
+        return CandidateFlowSerializer
+    
+    def perform_create(self, serializer):
+        serializer.save(
+            created_by=self.request.user,
+            hr_company=self.request.user.hr_company
+        )
     
     @action(detail=False, methods=['get'])
     def my_flows(self, request):

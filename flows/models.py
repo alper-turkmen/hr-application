@@ -12,6 +12,9 @@ class ActivityType(models.Model):
     
     def __str__(self):
         return self.name
+    
+    class Meta:
+        ordering = ['name']
 
 class Status(models.Model):
     name = models.CharField(max_length=100)
@@ -29,6 +32,7 @@ class Status(models.Model):
     
     class Meta:
         unique_together = ['name', 'activity_type']
+        ordering = ['activity_type__name', 'name']
 
 class CandidateFlow(models.Model):
     FLOW_STATUS_CHOICES = [

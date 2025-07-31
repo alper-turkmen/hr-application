@@ -5,7 +5,7 @@ class EducationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Education
         fields = [
-            'id', 'school_name', 'department', 'degree', 'start_date', 'end_date',
+            'id', 'candidate', 'school_name', 'department', 'degree', 'start_date', 'end_date',
             'is_current', 'gpa', 'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
@@ -14,7 +14,7 @@ class WorkExperienceSerializer(serializers.ModelSerializer):
     class Meta:
         model = WorkExperience
         fields = [
-            'id', 'company_name', 'position', 'description', 'start_date', 'end_date',
+            'id', 'candidate', 'company_name', 'position', 'description', 'start_date', 'end_date',
             'is_current', 'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']

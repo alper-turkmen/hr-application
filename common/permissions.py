@@ -2,11 +2,15 @@ from rest_framework import permissions
 
 class IsHRUserPermission(permissions.BasePermission):
     def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        
+        if getattr(request.user, 'is_superuser', False):
+            return True
+            
         return (
-            request.user and 
-            request.user.is_authenticated and 
             hasattr(request.user, 'hr_company') and
-            request.user.hr_company is not None
+            getattr(request.user, 'hr_company', None) is not None
         )
 
 class CustomerCompanyPermission(permissions.BasePermission):
