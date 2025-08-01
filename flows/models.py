@@ -33,6 +33,12 @@ class Status(models.Model):
     class Meta:
         unique_together = ['name', 'activity_type']
         ordering = ['activity_type__name', 'name']
+        indexes = [
+            models.Index(fields=['activity_type']),
+            models.Index(fields=['is_active']),
+            models.Index(fields=['created_at']),
+            models.Index(fields=['activity_type', 'is_active']),
+        ]
 
 class CandidateFlow(models.Model):
     FLOW_STATUS_CHOICES = [
@@ -74,6 +80,20 @@ class CandidateFlow(models.Model):
     class Meta:
         unique_together = ['job_posting', 'candidate']
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['job_posting']),
+            models.Index(fields=['candidate']),
+            models.Index(fields=['hr_company']),
+            models.Index(fields=['created_by']),
+            models.Index(fields=['flow_status']),
+            models.Index(fields=['is_active']),
+            models.Index(fields=['created_at']),
+            models.Index(fields=['hr_company', 'flow_status']),  
+            models.Index(fields=['flow_status', 'is_active']),  
+            models.Index(fields=['hr_company', 'is_active']), 
+            models.Index(fields=['job_posting', 'candidate']),
+            models.Index(fields=['-created_at']), 
+        ]
 
 class Activity(models.Model):
     candidate_flow = models.ForeignKey(
@@ -110,3 +130,14 @@ class Activity(models.Model):
     
     class Meta:
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['candidate_flow']),
+            models.Index(fields=['activity_type']),
+            models.Index(fields=['status']),
+            models.Index(fields=['created_by']),
+            models.Index(fields=['hr_company']),
+            models.Index(fields=['created_at']),
+            models.Index(fields=['candidate_flow', 'activity_type']), 
+            models.Index(fields=['hr_company', 'created_by']),  
+            models.Index(fields=['-created_at']), 
+        ]

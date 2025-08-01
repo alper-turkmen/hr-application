@@ -28,6 +28,17 @@ class Report(models.Model):
         ordering = ['-generated_at']
         verbose_name = _('Report')
         verbose_name_plural = _('Reports')
+        indexes = [
+            models.Index(fields=['report_type']),
+            models.Index(fields=['status']),
+            models.Index(fields=['start_date']),
+            models.Index(fields=['end_date']),
+            models.Index(fields=['generated_at']),
+            models.Index(fields=['completed_at']),
+            models.Index(fields=['report_type', 'status']), 
+            models.Index(fields=['start_date', 'end_date']), 
+            models.Index(fields=['-generated_at']), 
+        ]
     
     def __str__(self):
         return f"{self.get_report_type_display()} - {self.start_date} to {self.end_date}"

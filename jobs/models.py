@@ -37,3 +37,16 @@ class JobPosting(models.Model):
     
     class Meta:
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['hr_company']),
+            models.Index(fields=['customer_company']),
+            models.Index(fields=['status']),
+            models.Index(fields=['is_active']),
+            models.Index(fields=['created_by']),
+            models.Index(fields=['created_at']),
+            models.Index(fields=['closing_date']),
+            models.Index(fields=['hr_company', 'customer_company']), 
+            models.Index(fields=['status', 'is_active']), 
+            models.Index(fields=['hr_company', 'is_active']),  
+            models.Index(fields=['-created_at']), 
+        ]

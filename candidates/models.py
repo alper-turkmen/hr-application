@@ -19,6 +19,16 @@ class Candidate(models.Model):
     
     class Meta:
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['email']),
+            models.Index(fields=['is_active']),
+            models.Index(fields=['created_at']),
+            models.Index(fields=['first_name']),
+            models.Index(fields=['last_name']),
+            models.Index(fields=['phone']),
+            models.Index(fields=['first_name', 'last_name']), 
+            models.Index(fields=['-created_at']), 
+        ]
 
 class Education(models.Model):
     candidate = models.ForeignKey(
@@ -41,6 +51,15 @@ class Education(models.Model):
     
     class Meta:
         ordering = ['-start_date']
+        indexes = [
+            models.Index(fields=['candidate']),
+            models.Index(fields=['start_date']),
+            models.Index(fields=['end_date']),
+            models.Index(fields=['is_current']),
+            models.Index(fields=['school_name']),
+            models.Index(fields=['candidate', 'start_date']), 
+            models.Index(fields=['-start_date']), 
+        ]
 
 class WorkExperience(models.Model):
     candidate = models.ForeignKey(
@@ -62,3 +81,12 @@ class WorkExperience(models.Model):
     
     class Meta:
         ordering = ['-start_date']
+        indexes = [
+            models.Index(fields=['candidate']),
+            models.Index(fields=['start_date']),
+            models.Index(fields=['end_date']),
+            models.Index(fields=['is_current']),
+            models.Index(fields=['company_name']),
+            models.Index(fields=['candidate', 'start_date']), 
+            models.Index(fields=['-start_date']), 
+        ]

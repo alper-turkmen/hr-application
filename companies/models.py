@@ -10,6 +10,15 @@ class HRCompany(models.Model):
 
     def __str__(self):
         return self.name
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['code']),
+            models.Index(fields=['is_active']),
+            models.Index(fields=['created_at']),
+            models.Index(fields=['name']),
+            models.Index(fields=['-created_at']),  
+        ]
 
 class CustomerCompany(models.Model):
     name = models.CharField(max_length=255)
@@ -20,3 +29,12 @@ class CustomerCompany(models.Model):
 
     def __str__(self):
         return self.name
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['code']),
+            models.Index(fields=['is_active']),
+            models.Index(fields=['created_at']),
+            models.Index(fields=['name']),
+            models.Index(fields=['-created_at']),  
+        ]

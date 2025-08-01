@@ -45,3 +45,13 @@ class HRUser(AbstractUser):
     @property
     def is_hr_staff(self):
         return bool(self.hr_company and not self.is_superuser)
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['email']),
+            models.Index(fields=['hr_company']),
+            models.Index(fields=['is_active']),
+            models.Index(fields=['created_at']),
+            models.Index(fields=['hr_company', 'is_active']), 
+            models.Index(fields=['-created_at']),
+        ]
