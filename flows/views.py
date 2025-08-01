@@ -1,3 +1,4 @@
+import logging
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -10,6 +11,8 @@ from .serializers import (
     ActivitySerializer, ActivityCreateSerializer
 )
 from common.permissions import IsHRUserPermission, CustomerCompanyPermission, HRCompanyPermission
+
+logger = logging.getLogger('wisehire.flows')
 
 class ActivityTypeViewSet(viewsets.ModelViewSet):
     queryset = ActivityType.objects.filter(is_active=True)
@@ -98,10 +101,16 @@ class CandidateFlowViewSet(viewsets.ModelViewSet):
         return CandidateFlowSerializer
     
     def perform_create(self, serializer):
-        serializer.save(
+        candidate_flow = serializer.save(
             created_by=self.request.user,
             hr_company=self.request.user.hr_company
         )
+        
+        logger.info(f"Candidate flow created - Candidate: {candidate_flow.candidate.first_name} {candidate_flow.candidate.last_name} "
+                   f"(Email: {candidate_flow.candidate.email}), "
+                   f"Job: {candidate_flow.job_posting.title} (Code: {candidate_flow.job_posting.code}), "
+                   f"Status: {candidate_flow.flow_status}, "
+                   f"Created by: {self.request.user.username} (ID: {self.request.user.id})")
     
     @action(detail=False, methods=['get'])
     def my_flows(self, request):
@@ -114,6 +123,26 @@ class CandidateFlowViewSet(viewsets.ModelViewSet):
         queryset = self.get_queryset().filter(flow_status='active', is_active=True)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+    
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        old_status = instance.flow_status
+        response = super().update(request, *args, **kwargs)
+        if response.status_code == status.HTTP_200_OK:
+            logger.info(f"Candidate flow updated - Candidate: {instance.candidate.first_name} {instance.candidate.last_name}, "
+                       f"Job: {instance.job_posting.title}, "
+                       f"Status changed from '{old_status}' to '{instance.flow_status}', "
+                       f"Updated by: {request.user.username} (ID: {request.user.id})")
+        return response
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        flow_info = f"Candidate: {instance.candidate.first_name} {instance.candidate.last_name}, Job: {instance.job_posting.title}, ID: {instance.id}"
+        response = super().destroy(request, *args, **kwargs)
+        if response.status_code == status.HTTP_204_NO_CONTENT:
+            logger.warning(f"Candidate flow deleted - {flow_info}, "
+                          f"Deleted by: {request.user.username} (ID: {request.user.id})")
+        return response
 
 class ActivityViewSet(viewsets.ModelViewSet):
     queryset = Activity.objects.all()
@@ -135,10 +164,16 @@ class ActivityViewSet(viewsets.ModelViewSet):
         return ActivitySerializer
     
     def perform_create(self, serializer):
-        serializer.save(
+        activity = serializer.save(
             created_by=self.request.user,
             hr_company=self.request.user.hr_company
         )
+        
+        logger.info(f"Activity created - Type: {activity.activity_type.name}, "
+                   f"Status: {activity.status.name}, "
+                   f"Candidate Flow ID: {activity.candidate_flow.id}, "
+                   f"Candidate: {activity.candidate_flow.candidate.first_name} {activity.candidate_flow.candidate.last_name}, "
+                   f"Created by: {self.request.user.username} (ID: {self.request.user.id})")
     
     @action(detail=False, methods=['get'])
     def by_candidate_flow(self, request):
@@ -156,3 +191,24 @@ class ActivityViewSet(viewsets.ModelViewSet):
         queryset = self.get_queryset().filter(created_by=request.user)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+    
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        old_status = instance.status.name if instance.status else 'None'
+        response = super().update(request, *args, **kwargs)
+        if response.status_code == status.HTTP_200_OK:
+            new_status = instance.status.name if instance.status else 'None'
+            logger.info(f"Activity updated - Type: {instance.activity_type.name}, "
+                       f"Status changed from '{old_status}' to '{new_status}', "
+                       f"Candidate Flow ID: {instance.candidate_flow.id}, "
+                       f"Updated by: {request.user.username} (ID: {request.user.id})")
+        return response
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        activity_info = f"Type: {instance.activity_type.name}, Status: {instance.status.name if instance.status else 'None'}, ID: {instance.id}"
+        response = super().destroy(request, *args, **kwargs)
+        if response.status_code == status.HTTP_204_NO_CONTENT:
+            logger.warning(f"Activity deleted - {activity_info}, "
+                          f"Deleted by: {request.user.username} (ID: {request.user.id})")
+        return response

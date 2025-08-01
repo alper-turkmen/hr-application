@@ -1,3 +1,4 @@
+import logging
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
@@ -21,6 +22,8 @@ from .serializers import (
 )
 from drf_spectacular.utils import extend_schema
 
+logger = logging.getLogger('wisehire.accounts')
+
 
 class AuthViewSet(viewsets.GenericViewSet):
     permission_classes = [AllowAny]
@@ -39,6 +42,8 @@ class AuthViewSet(viewsets.GenericViewSet):
         if serializer.is_valid():
             user = serializer.validated_data['user']
             refresh = RefreshToken.for_user(user)
+            
+            logger.info(f"User login successful - User: {user.username} (ID: {user.id}), Email: {user.email}, IP: {request.META.get('REMOTE_ADDR', 'Unknown')}")
                      
             return Response({
                 'access': str(refresh.access_token),
@@ -46,6 +51,9 @@ class AuthViewSet(viewsets.GenericViewSet):
                 'user': HRUserProfileSerializer(user).data,
                 'message': 'Login successful!'
             })
+        
+        email = request.data.get('email', 'Unknown')
+        logger.warning(f"Failed login attempt - Email: {email}")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @extend_schema(
@@ -83,11 +91,16 @@ class AuthViewSet(viewsets.GenericViewSet):
         user = authenticate(username=username, password=password)
         if user and user.is_active:
             login(request, user)
+
+            logger.info(f"Session login successful - User: {user.username} (ID: {user.id}), Email: {user.email}")
+
             return Response({
                 'message': 'Login successful!',
                 'user': HRUserProfileSerializer(user).data
             })
-        
+
+        logger.warning(f"Failed session login attempt - Username: {username}")
+
         return Response({
             'error': 'Invalid username or password!'
         }, status=status.HTTP_400_BAD_REQUEST)
@@ -120,7 +133,11 @@ class HRUserViewSet(viewsets.ModelViewSet):
         tags=['Users']
     )
     def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
+        response = super().create(request, *args, **kwargs)
+        if response.status_code == status.HTTP_201_CREATED:
+            user_data = response.data
+            logger.info(f"New user created - Username: {user_data.get('username')}, Email: {user_data.get('email')}, Created by: {request.user.username} (ID: {request.user.id})")
+        return response
     
     @extend_schema(
         operation_id="retrieve_hr_user",
@@ -138,7 +155,16 @@ class HRUserViewSet(viewsets.ModelViewSet):
         tags=['Users']
     )
     def update(self, request, *args, **kwargs):
-        return super().update(request, *args, **kwargs)
+        instance = self.get_object()
+        old_data = {
+            'username': instance.username,
+            'email': instance.email,
+            'is_active': instance.is_active
+        }
+        response = super().update(request, *args, **kwargs)
+        if response.status_code == status.HTTP_200_OK:
+            logger.info(f"User updated - User: {instance.username} (ID: {instance.id}), Updated by: {request.user.username} (ID: {request.user.id}), Changes: {request.data}")
+        return response
     
     @extend_schema(
         operation_id="partial_update_hr_user",
@@ -156,7 +182,12 @@ class HRUserViewSet(viewsets.ModelViewSet):
         tags=['Users']
     )
     def destroy(self, request, *args, **kwargs):
-        return super().destroy(request, *args, **kwargs)
+        instance = self.get_object()
+        user_info = f"Username: {instance.username}, Email: {instance.email}, ID: {instance.id}"
+        response = super().destroy(request, *args, **kwargs)
+        if response.status_code == status.HTTP_204_NO_CONTENT:
+            logger.warning(f"User deleted - {user_info}, Deleted by: {request.user.username} (ID: {request.user.id})")
+        return response
     
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -200,6 +231,7 @@ class LoginView(View):
         
         if not email or not password:
             messages.error(request, 'Please provide both email and password.')
+            logger.warning(f"Login attempt with missing credentials - IP: {request.META.get('REMOTE_ADDR', 'Unknown')}")
             return render(request, 'accounts/login.html')
         
         user = authenticate(request, username=email, password=password)
@@ -207,9 +239,15 @@ class LoginView(View):
         if user and user.is_active:
             login(request, user)
             messages.success(request, f'Welcome back, {user.username}!')
+            
+            logger.info(f"Web login successful - User: {user.username} (ID: {user.id}), Email: {user.email}")
+            
             return redirect('dashboard')
         else:
             messages.error(request, 'Invalid email or password.')
+
+            logger.warning(f"Failed web login attempt - Email: {email}")
+
             return render(request, 'accounts/login.html')
 
 
@@ -222,6 +260,10 @@ class DashboardView(View):
 
 
 def logout_view(request):
+    user_info = f"User: {request.user.username} (ID: {request.user.id})" if request.user.is_authenticated else "Anonymous user"
+    
     logout(request)
     messages.success(request, 'You have been successfully logged out.')
+    logger.info(f"User logout - {user_info}")
+    
     return redirect('login')

@@ -150,18 +150,84 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+        'detailed': {
+            'format': '[{asctime}] {levelname} {name} - {message}',
+            'style': '{',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
+    },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
+            'formatter': 'detailed',
+        },
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs' / 'wisehire.log',
+            'formatter': 'detailed',
+        },
+        'user_operations': {
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs' / 'user_operations.log',
+            'formatter': 'detailed',
+        },
+        'job_operations': {
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs' / 'job_operations.log',
+            'formatter': 'detailed',
+        },
+        'flow_operations': {
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs' / 'flow_operations.log',
+            'formatter': 'detailed',
         },
     },
     'loggers': {
         'wisehire': {
-            'handlers': ['console'],
+            'handlers': ['console', 'file'],
             'level': 'INFO',
+            'propagate': False,
+        },
+        'wisehire.accounts': {
+            'handlers': ['console', 'user_operations'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'wisehire.jobs': {
+            'handlers': ['console', 'job_operations'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'wisehire.flows': {
+            'handlers': ['console', 'flow_operations'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'django.security': {
+            'handlers': ['console', 'file'],
+            'level': 'WARNING',
+            'propagate': False,
         },
     },
+    'root': {
+        'handlers': ['console'],
+        'level': 'WARNING',
+    },
 }
+
+import os
+logs_dir = BASE_DIR / 'logs'
+if not os.path.exists(logs_dir):
+    os.makedirs(logs_dir)
 
 
 SPECTACULAR_SETTINGS = {
