@@ -114,7 +114,7 @@ Bu proje, insan kaynakları şirketlerinin farklı müşteri şirketler için i�
 ### Frontend Kurulumu
 
 1. Gerekli bağımlılıkları yüklemek için `npm install` komutunu çalıştırın.
-2. Geliştirme sunucusunu başlatmak için `npm start` komutunu çalıştırın.
+2. Geliştirme sunucusunu başlatmak için `npm run dev` komutunu çalıştırın.
 
 
 ⸻
