@@ -113,4 +113,6 @@ class HRUserProfileSerializer(serializers.ModelSerializer):
             'phone',
             'hr_company_name',
             'authorized_companies_list',
+            'is_superuser',
+            'is_staff',
         ]
