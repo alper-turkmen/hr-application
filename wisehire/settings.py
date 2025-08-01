@@ -65,16 +65,24 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'wisehire.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'testdb',
-        'USER': 'postgres',
-        'PASSWORD': '1234',
-        'HOST': 'localhost',
-        'PORT': '5432',
+import dj_database_url
+
+DATABASE_URL = os.environ.get('DATABASE_URL')
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.parse(DATABASE_URL)
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'testdb',
+            'USER': 'postgres',
+            'PASSWORD': '1234',
+            'HOST': 'localhost',
+            'PORT': '5432',
+        }
+    }
 
 AUTH_USER_MODEL = 'accounts.HRUser'
 
@@ -111,8 +119,8 @@ CORS_ALLOWED_ORIGINS = [
 ]
 CORS_ALLOW_CREDENTIALS = True
 
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0')
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
@@ -121,11 +129,15 @@ CELERY_TIMEZONE = 'Europe/Istanbul'
 CELERY_BEAT_SCHEDULE = {
     'close-expired-jobs': {
         'task': 'jobs.tasks.close_expired_jobs',
-        'schedule': 180.0,  
+        'schedule': 180.0,
     },
-    'generate-monthly-report': {
+    'generate-weekly-activity-report': {
+        'task': 'reports.tasks.generate_weekly_activity_report',
+        'schedule': 604800.0, 
+    },
+    'generate-monthly-activity-report': {
         'task': 'reports.tasks.generate_monthly_activity_report',
-        'schedule': 86400.0,
+        'schedule': 2592000.0, 
     },
 }
 
@@ -192,6 +204,11 @@ LOGGING = {
             'filename': BASE_DIR / 'logs' / 'flow_operations.log',
             'formatter': 'detailed',
         },
+        'report_operations': {
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs' / 'report_operations.log',
+            'formatter': 'detailed',
+        },
     },
     'loggers': {
         'wisehire': {
@@ -211,6 +228,11 @@ LOGGING = {
         },
         'wisehire.flows': {
             'handlers': ['console', 'flow_operations'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'wisehire.reports': {
+            'handlers': ['console', 'report_operations'],
             'level': 'INFO',
             'propagate': False,
         },

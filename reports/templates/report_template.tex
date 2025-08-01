@@ -1,0 +1,64 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{booktabs}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Header and footer setup
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\today}
+\lhead{REPORT_TITLE}
+\cfoot{\thepage}
+
+% Custom colors
+\definecolor{primarycolor}{RGB}{0, 123, 255}
+\definecolor{secondarycolor}{RGB}{108, 117, 125}
+
+\title{\textcolor{primarycolor}{REPORT_TITLE}}
+\author{\textbf{WiseHire Reports}}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Report Information}
+\begin{itemize}
+    \item \textbf{Report Type:} REPORT_TYPE
+    \item \textbf{Period:} From START_DATE to END_DATE
+    \item \textbf{Generated:} \today
+\end{itemize}
+
+\section{Activity Statistics}
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|c|}
+\hline
+\rowcolor{primarycolor!20}
+\textbf{Activity Type} & \textbf{Count} \\
+\hline
+ACTIVITY_DATA
+\end{tabular}
+\caption{Activity Statistics for the Specified Period}
+\label{tab:activity_stats}
+\end{table}
+
+
+\subsection{Key Insights}
+\begin{itemize}
+    \item Total activities tracked: TOTAL_ACTIVITIES
+    \item Report generation date: \today
+    \item Data source: WiseHire Activity Management Report
+\end{itemize}
+
+\section{Notes}
+\begin{itemize}
+    \item All timestamps are in Europe/Istanbul timezone
+    \item Data is automatically aggregated from the beginning of the year
+    \item Reports are generated using Celery background tasks
+\end{itemize}
+
+\end{document}
